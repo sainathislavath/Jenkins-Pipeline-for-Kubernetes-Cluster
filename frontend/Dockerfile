@@ -1,3 +1,4 @@
+# Stage 1: Build React App
 FROM node:18 AS builder
 WORKDIR /app
 
@@ -7,28 +8,34 @@ ARG REACT_APP_PRODUCT_SERVICE_URL
 ARG REACT_APP_CART_SERVICE_URL
 ARG REACT_APP_ORDER_SERVICE_URL
 
-# Set them as environment variables for the build process
 ENV REACT_APP_USER_SERVICE_URL=$REACT_APP_USER_SERVICE_URL
 ENV REACT_APP_PRODUCT_SERVICE_URL=$REACT_APP_PRODUCT_SERVICE_URL
 ENV REACT_APP_CART_SERVICE_URL=$REACT_APP_CART_SERVICE_URL
 ENV REACT_APP_ORDER_SERVICE_URL=$REACT_APP_ORDER_SERVICE_URL
 
-# Install dependencies and build the app
+# Install dependencies
 COPY package*.json ./
 RUN npm install --legacy-peer-deps
+
+# Copy source code
 COPY . .
+
+# Fix permission issue for react-scripts
+RUN chmod +x node_modules/.bin/react-scripts
+
+# Build the app
 RUN npm run build
 
-# Stage 2: Serve with NGINX
+# Stage 2: Serve using NGINX
 FROM nginx:alpine
 
-# Remove default nginx static files
+# Clean default static files
 RUN rm -rf /usr/share/nginx/html/*
 
 # Copy build output from builder
 COPY --from=builder /app/build /usr/share/nginx/html
 
-# Copy custom nginx config (optional)
+# Optional: custom nginx config
 # COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
