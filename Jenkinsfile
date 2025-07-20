@@ -2,6 +2,8 @@ pipeline {
   agent any
 
   environment {
+    DOCKERHUB_USER = credentials('dockerhub-credientials')     // Jenkins Credential ID
+    DOCKERHUB_PASS = credentials('Sainath@21')     // Jenkins Credential ID
     AWS_REGION = 'us-west-2'
     EKS_CLUSTER_NAME = 'e-commerce-deployment'
   }
@@ -17,32 +19,29 @@ pipeline {
     stage('Build and Push Docker Images') {
       steps {
         script {
-          withCredentials([usernamePassword(credentialsId: 'dockerhub-credientials', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
-            
-            def services = [
-              'user-service',
-              'product-service',
-              'cart-service',
-              'order-service'
-            ]
+          def services = [
+            'user-service',
+            'product-service',
+            'cart-service',
+            'order-service'
+          ]
 
-            services.each { service ->
-              dir("backend/${service}") {
-                sh """
-                  docker build -t ${DOCKERHUB_USER}/${service}:latest .
-                  echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USER}" --password-stdin
-                  docker push ${DOCKERHUB_USER}/${service}:latest
-                """
-              }
-            }
-
-            dir("frontend") {
+          services.each { service ->
+            dir("backend/${service}") {
               sh """
-                docker build -t ${DOCKERHUB_USER}/e-commerce-frontend:latest .
+                docker build -t ${DOCKERHUB_USER}/${service}:latest .
                 echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USER}" --password-stdin
-                docker push ${DOCKERHUB_USER}/e-commerce-frontend:latest
+                docker push ${DOCKERHUB_USER}/${service}:latest
               """
             }
+          }
+
+          dir("frontend") {
+            sh """
+              docker build -t ${DOCKERHUB_USER}/e-commerce-frontend:latest .
+              echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USER}" --password-stdin
+              docker push ${DOCKERHUB_USER}/e-commerce-frontend:latest
+            """
           }
         }
       }
