@@ -15,6 +15,7 @@ ENV REACT_APP_ORDER_SERVICE_URL=$REACT_APP_ORDER_SERVICE_URL
 
 # Install dependencies and build the app
 COPY package*.json ./
+ENV NODE_ENV=development
 RUN npm install
 COPY . .
 RUN npm run build
