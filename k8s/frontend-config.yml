@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+data:
+  REACT_APP_USER_SERVICE: "http://localhost:31001"
+  REACT_APP_PRODUCT_SERVICE: "http://localhost:31002"
+  REACT_APP_CART_SERVICE: "http://localhost:31003"
+  REACT_APP_ORDER_SERVICE: "http://localhost:31004"
