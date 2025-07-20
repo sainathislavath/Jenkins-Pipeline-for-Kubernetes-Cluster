@@ -17,8 +17,8 @@ pipeline {
     stage('Build and Push Docker Images') {
       steps {
         script {
-          withCredentials([usernamePassword(credentialsId: 'dockerhub-credientials', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
-            
+          withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+
             def services = [
               'user-service',
               'product-service',
@@ -51,6 +51,12 @@ pipeline {
     stage('Update Kubeconfig') {
       steps {
         sh "aws eks --region ${AWS_REGION} update-kubeconfig --name ${EKS_CLUSTER_NAME}"
+      }
+    }
+
+    stage('Verify AWS Identity') { // Optional
+      steps {
+        sh "aws sts get-caller-identity"
       }
     }
 
