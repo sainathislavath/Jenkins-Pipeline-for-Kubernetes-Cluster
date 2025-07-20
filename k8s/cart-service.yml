@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: cart-service
 spec:
-  type: NodePort
+  # type: NodePort
   selector:
     app: cart-service
   ports:
     - port: 3003
       targetPort: 3003
-      nodePort: 31003
+      # nodePort: 31003

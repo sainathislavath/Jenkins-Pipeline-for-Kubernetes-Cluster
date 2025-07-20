@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: e-commerce-frontend
 spec:
-  type: NodePort
+  type: LoadBalancer # NodePort in local
   selector:
     app: e-commerce-frontend
   ports:
     - port: 80
       targetPort: 80
-      nodePort: 30000
+      # nodePort: 30000

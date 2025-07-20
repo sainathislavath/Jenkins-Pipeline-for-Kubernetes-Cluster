@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: order-service
 spec:
-  type: NodePort
+  # type: NodePort
   selector:
     app: order-service
   ports:
     - port: 3004
       targetPort: 3004
-      nodePort: 31004
+      # nodePort: 31004
