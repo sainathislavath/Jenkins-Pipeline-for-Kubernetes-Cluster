@@ -4,6 +4,8 @@ pipeline {
   environment {
     AWS_REGION = 'us-west-2'
     EKS_CLUSTER_NAME = 'e-commerce-deployment'
+    AWS_ACCESS_KEY_ID = 'YOUR_AWS_ACCESS_KEY_ID'
+    AWS_SECRET_ACCESS_KEY = 'YOUR_AWS_SECRET_ACCESS_KEY'
   }
 
   stages {
@@ -49,15 +51,15 @@ pipeline {
     }
 
     stage('Update Kubeconfig') {
-      steps {
-        sh "aws eks --region ${AWS_REGION} update-kubeconfig --name ${EKS_CLUSTER_NAME}"
-      }
-    }
-
-    stage('Verify AWS Identity') { // Optional
-      steps {
-        sh "aws sts get-caller-identity"
-      }
+        steps {
+            sh """
+            aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
+            aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
+            aws eks --region ${AWS_REGION} update-kubeconfig --name ${EKS_CLUSTER_NAME}
+            aws sts get-caller-identity
+            kubectl config view
+            """
+        }
     }
 
     stage('Deploy to EKS') {
