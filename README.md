@@ -1,4 +1,4 @@
-# E-Commerce Microservices Application
+# Jenkins Pipeline for Kubernetes Cluster
 
 This project is a microservice-based eCommerce web application built with React, Node.js, Express, and MongoDB. It implements an API Gateway and multiple microservices including User, Product, Cart, and Order services.
 
