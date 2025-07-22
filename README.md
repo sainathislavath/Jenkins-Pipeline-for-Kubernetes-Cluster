@@ -1,6 +1,6 @@
 # E-Commerce Microservices Application
 
-A full-stack MERN e-commerce application built with microservices architecture, featuring 4 separate Node.js backend services and a React frontend.
+This project is a microservice-based eCommerce web application built with React, Node.js, Express, and MongoDB. It implements an API Gateway and multiple microservices including User, Product, Cart, and Order services.
 
 ## 🏗️ Architecture Overview
 
@@ -88,6 +88,14 @@ Frontend (React) → API Gateway → Microservices
 - `POST /api/payments/process` - Process payment
 - `POST /api/payments/refund` - Process refund
 
+**Frontend (frontend/.env)**
+- REACT_APP_USER_SERVICE_URL=http://localhost:3001
+- REACT_APP_PRODUCT_SERVICE_URL=http://localhost:3002
+- REACT_APP_CART_SERVICE_URL=http://localhost:3003
+- REACT_APP_ORDER_SERVICE_URL=http://localhost:3004
+
+Connects the React app with all backend services.
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -98,8 +106,8 @@ Frontend (React) → API Gateway → Microservices
 
 1. **Clone the repository**
 ```bash
-git clone <repository-url>
-cd ecommerce-microservices
+git clone https://github.com/sainathislavath/Jenkins-Pipeline-for-Kubernetes-Cluster
+cd Jenkins-Pipeline-for-Kubernetes-Cluster
 ```
 
 2. **Install dependencies for each service**
@@ -205,31 +213,6 @@ The application will be available at:
 - Cart Service: http://localhost:3003
 - Order Service: http://localhost:3004
 
-## 🎯 Features
-
-### User Features
-- **Authentication**: Register and login with JWT tokens
-- **Product Browsing**: View products with search, filtering, and pagination
-- **Shopping Cart**: Add, update, and remove items
-- **Checkout Process**: Complete order placement with shipping and payment
-- **Order Management**: View order history and track status
-- **Profile Management**: Update personal information and addresses
-
-### Admin Features (Future Enhancement)
-- Product and category management
-- Order status updates
-- Inventory management
-- User management
-
-### Technical Features
-- **Microservices Architecture**: Loosely coupled services
-- **RESTful APIs**: Standard HTTP methods and status codes
-- **Data Validation**: Input validation and error handling
-- **Cross-Service Communication**: HTTP-based service interactions
-- **Responsive Design**: Mobile-friendly user interface
-- **Error Handling**: Comprehensive error management
-- **Loading States**: User-friendly loading indicators
-
 ## 📁 Project Structure
 
 ```
@@ -240,21 +223,29 @@ ecommerce-microservices/
 │   │   ├── routes/
 │   │   ├── middleware/
 │   │   ├── server.js
+│   │   ├── .env
+│   │   ├── Dockerfile
 │   │   └── package.json
 │   ├── product-service/
 │   │   ├── models/
 │   │   ├── routes/
 │   │   ├── server.js
+│   │   ├── .env
+│   │   ├── Dockerfile
 │   │   └── package.json
 │   ├── cart-service/
 │   │   ├── models/
 │   │   ├── routes/
 │   │   ├── server.js
+│   │   ├── .env
+│   │   ├── Dockerfile
 │   │   └── package.json
 │   └── order-service/
 │       ├── models/
 │       ├── routes/
 │       ├── server.js
+│       ├── .env
+│       ├── Dockerfile
 │       └── package.json
 ├── frontend/
 │   ├── public/
@@ -265,6 +256,8 @@ ecommerce-microservices/
 │   │   ├── services/
 │   │   ├── App.js
 │   │   └── index.js
+│   ├── .env.js
+│   ├── Dockerfile
 │   └── package.json
 ├── package.json
 └── README.md
@@ -275,11 +268,6 @@ ecommerce-microservices/
 You can test the APIs using tools like Postman or curl:
 
 ```bash
-# Health check for all services
-curl http://localhost:3001/health
-curl http://localhost:3002/health
-curl http://localhost:3003/health
-curl http://localhost:3004/health
 
 # Register a new user
 curl -X POST http://localhost:3001/api/auth/register \
@@ -292,63 +280,413 @@ curl http://localhost:3002/api/products
 # Get categories
 curl http://localhost:3002/api/categories
 ```
+## Dockerizing the Application
 
-## 🚀 Deployment
+To make this application production-ready and deployable in scalable environments (like Kubernetes or Docker Compose), it's essential to create Docker images for each service.
 
-### Production Considerations
+Below are instructions to create Dockerfiles for each microservice and the frontend.
 
-1. **Environment Variables**: Use proper environment variable management
-2. **Database**: Use MongoDB Atlas or other managed database services
-3. **Process Management**: Use PM2 or similar for process management
-4. **Load Balancing**: Implement load balancing for high availability
-5. **Monitoring**: Add logging and monitoring solutions
-6. **Security**: Implement rate limiting, CORS, and other security measures
+## Backend Services Dockerfile
 
-### Docker Deployment (Future Enhancement)
+Use the following Dockerfile for each backend microservice (User, Product, Cart, and Order services):
+```Dockerfile
+# Use official Node.js image
+FROM node:18
 
-Each service can be containerized with Docker:
-
-```dockerfile
-# Example Dockerfile for a service
-FROM node:16-alpine
+# Set working directory
 WORKDIR /app
+
+# Copy package files and install dependencies
 COPY package*.json ./
-RUN npm install --production
+RUN npm install
+
+# Copy all source files
 COPY . .
-EXPOSE 3001
+
+# Port is injected dynamically via runtime configs like Kubernetes or Docker Compose
+EXPOSE $PORT
+
+# Start the service
 CMD ["npm", "start"]
 ```
 
-## 🤝 Contributing
+### Explanation:
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+- FROM node:18: Uses the stable Node.js 18 base image.
 
-## 📝 License
+- WORKDIR /app: All commands will run inside /app.
 
-This project is licensed under the MIT License.
+- COPY package*.json ./ && npm install: Installs all required dependencies.
 
-## 🆘 Support
+- COPY . .: Copies your entire project into the image.
 
-For support and questions:
-- Check the documentation
-- Review API endpoints and expected payloads
-- Ensure all services are running
-- Verify database connections
-- Check environment variables
+- EXPOSE $PORT: Documented for future use (actual value can be provided via environment).
 
-## 🔮 Future Enhancements
+- CMD ["npm", "start"]: Starts the server.
 
-- **API Gateway**: Centralized request routing and authentication
-- **Docker Containerization**: Full containerization with docker-compose
-- **Message Queues**: Async communication between services
-- **Caching**: Redis caching for improved performance
-- **Search Engine**: Elasticsearch for advanced product search
-- **File Upload**: Image upload and management
-- **Email Service**: Order confirmations and notifications
-- **Admin Dashboard**: Administrative interface
-- **Analytics**: Order and user analytics
-- **Payment Integration**: Real payment gateway integration
+**Note:** Environment variables like PORT and MONGODB_URI will be injected via .env during local testing, or by Kubernetes ConfigMaps/Secrets in production.
+
+## Frontend React App Dockerfile
+```Dockerfile
+# Stage 1: Build
+FROM node:18 AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# Stage 2: Serve with Nginx
+FROM nginx:alpine
+COPY --from=builder /app/build /usr/share/nginx/html
+EXPOSE 80
+```
+
+### Explanation:
+
+    Stage 1 (builder)
+
+        Installs the frontend dependencies.
+
+        Builds the production version of the React app (npm run build).
+
+    Stage 2 (nginx)
+
+        Copies built assets to Nginx's default static serve directory.
+
+        Serves the frontend on port 80.
+
+This makes the frontend lightweight and production-optimized using Nginx.
+
+## Build & Push Docker Images to DockerHub
+To push your Dockerized services to Docker Hub, you can create and run a simple script.
+
+## Bash Script Sample
+```Bash
+#!/bin/bash
+
+# Login to DockerHub
+docker login
+
+# Replace this with your Docker Hub username
+DOCKER_USER=<YOUR_DOCKERHUB_USERNAME>
+
+# Build & push backend images
+for svc in user product cart order; do
+  echo "Building $svc-service..."
+  cd backend/${svc}-service
+  docker build -t $DOCKER_USER/${svc}-service:latest .
+  docker push $DOCKER_USER/${svc}-service:latest
+  cd - > /dev/null
+done
+
+# Build & push frontend
+echo "Building frontend..."
+cd frontend
+docker build -t $DOCKER_USER/frontend:latest .
+docker push $DOCKER_USER/frontend:latest
+cd - > /dev/null
+```
+
+## Notes:
+- Ensure that each Dockerfile is placed in the root of its respective service directory.
+
+- Make sure all services run without error individually before building and pushing.
+
+- Replace <YOUR_DOCKERHUB_USERNAME> with your actual Docker Hub username.
+
+## Kubernetes Setup for Microservice Application
+
+To run this app inside Kubernetes (local or production), we will deploy MongoDB, backend microservices, and the frontend using Kubernetes-native resources like Deployments, Services, ConfigMaps, and PersistentVolumeClaims.
+
+## Key Kubernetes Concepts
+### ⚙️ Key Kubernetes Concepts
+
+| Resource | Purpose |
+|---|---|
+| Deployment | Manages Pods and handles scaling, updating, and self-healing. |
+| Pod | A group of one or more containers that run together. |
+| Service | Exposes a group of Pods via a consistent DNS name. |
+| ConfigMap | Stores non-sensitive environment variables like .env. |
+| PersistentVolumeClaim | Binds storage to MongoDB so it persists across restarts. |
+
+### MongoDB in Kubernetes
+We need to:
+
+    Run the MongoDB container.
+
+    Persist the data using a PersistentVolumeClaim.
+
+    Allow internal access via a service.
+
+### Backend Microservices (user-service.yaml, and others)
+Each service has:
+
+    ConfigMap for environment variables.
+
+    Deployment for app instances.
+
+    Service for internal DNS/IP routing.
+
+### Traffic Flow Overview:
+```bash
+Browser (NodePort 30000)
+    ↓
+frontend (React)
+    ↓
+order-service
+    ↳ cart-service
+    ↳ product-service
+    ↳ user-service
+         ↳ MongoDB
+```
+Everything except the frontend entrypoint runs inside the Kubernetes cluster.
+
+### Apply Kubernetes Resources
+Once your Docker images are pushed to DockerHub:
+```bash
+kubectl apply -f k8s/
+```
+
+### Monitoring & Verification:
+```bash
+kubectl get pods         # Check pod status
+kubectl get services     # See exposed services
+```
+
+You should see:
+```bash
+NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)         AGE
+frontend         NodePort    10.x.x.x        <none>        80:30000/TCP    3m
+user-service     ClusterIP   10.x.x.x        <none>        3001/TCP        3m
+...
+```
+## Deploying to AWS EKS (Elastic Kubernetes Service)
+### Prerequisites
+- AWS CLI configured (aws configure)
+- eksctl, kubectl, and docker installed
+- Docker images pushed to DockerHub
+
+Step 1: Create EKS Cluster
+```bash
+eksctl create cluster \
+  --name node-deployment \
+  --region ap-south-1 \
+  --nodegroup-name standard-workers \
+  --node-type t2.micro \
+  --nodes 2 \
+  --nodes-min 1 \
+  --nodes-max 3
+```
+
+Takes ~10–15 mins. It sets up:
+- The VPC
+- Control Plane
+- Nodegroup
+- Security policies
+
+Step 2: Connect Local kubectl
+```bash
+aws eks --region ap-south-1 update-kubeconfig --name node-deployment
+
+kubectl get nodes
+```
+You should see a few EC2 nodes ready.
+
+Step 3: Create Directory Structure
+```bash
+k8s/
+├── cart-deployment.yml
+├── cart-service-config.yml
+├── cart-service.yml
+├── frontend-config.yml
+├── frontend-deployment.yml
+├── frontend-service.yml
+├── mongo-deployment.yml
+├── mongo-namespace.yml
+├── mongo-service.yml
+├── order-deployment.yml
+├── order-service-config.yml
+├── order-service.yml
+├── product-deployment.yml
+├── product-service-config.yml
+├── product-service.yml
+├── pv.yml
+├── pvc.yml
+├── user-deployment.yml
+├── user-service-config.yml
+└── user-service.yml
+```
+
+#### Each file contains:
+- A Deployment
+- A Service
+- A ConfigMap
+
+Step 4: Apply All Kubernetes Resources
+```bash
+kubectl apply -f k8s/
+```
+
+Watch app spin up:
+```bash
+kubectl get pods
+kubectl get svc --watch
+```
+
+## CI/CD Pipeline with Jenkins
+This section explains how to automate the build and deployment of your microservices to Amazon EKS using Jenkins.
+
+### Assumptions
+
+Before using the pipeline:
+
+   You have:
+
+    Jenkins agents with docker, kubectl, and aws CLI installed
+
+    Jenkins credentials set up for:
+
+        Docker Hub username (dockerhub-username)
+
+        Docker Hub password (dockerhub-password)
+
+    Your Kubernetes YAML files are in: k8s/
+
+    Each backend service and frontend has its own Dockerfile
+
+### Jenkins Declarative Pipeline
+Add the Jenkinsfile to the root of your repository which is provided in the repo
+
+### Pipeline Breakdown
+| Stage | Description |
+|---|---|
+| Checkout Code | Pulls code from your GitHub repository |
+| Build and Push Docker Images | Uses the Dockerfiles from each service directory to build and push images to Docker Hub |
+| Update Kubeconfig | Ensures kubectl points to the right EKS cluster |
+| Deploy to EKS | Applies your Kubernetes manifest files from the k8s/ directory |
+
+### Credentials in Jenkins
+
+Go to Jenkins → Manage Jenkins → Credentials and add:
+
+    A Username + Password credential:
+
+        ID: dockerhub-username
+
+        Username: your Docker Hub username
+
+    ID: dockerhub-password
+
+        Secret: your Docker Hub password or token
+
+#### What This Pipeline Does
+
+Once configured, the pipeline will:
+
+    Clone your code from GitHub
+
+    Build and push updated service images to Docker Hub
+
+    Refresh the kubectl context to your AWS EKS cluster
+
+    Apply the Kubernetes YAML definitions from the k8s/ directory
+
+#### Run the Pipeline
+
+To start the pipeline:
+
+    Commit the Jenkinsfile to your main branch
+
+    Create and configure a Jenkins job (or use GitHub webhook to auto-trigger)
+
+    Watch the stages complete under Jenkins UI
+
+
+## Sceenshots
+- Build the dockerfile for cart services
+
+![alt text](./images/1.png)
+
+- Run and push the dockerfile for cart services
+
+![alt text](./images/2.png)
+
+- Build the dockerfile for order services
+
+![alt text](./images/3.png)
+
+- Run the dockerfile for order services
+![alt text](./images/4.png)
+
+- Push the dockerfile for order services
+
+![alt text](./images/5.png)
+
+- Build the dockerfile for product services
+
+![alt text](./images/6.png)
+
+- Run and push the dockerfile for product services
+
+![alt text](./images/7.png)
+
+- Build the dockerfile for user services
+
+![alt text](./images/8.png)
+
+- Run and push the dockerfile for user services
+
+![alt text](./images/9.png)
+
+- Build the dockerfile for frontend services
+
+![alt text](./images/10.png)
+
+- Run and push the dockerfile for frontend services
+
+![alt text](./images/11.png)
+
+- Apply all the Kubernetes Resources
+
+![alt text](./images/12.png)
+
+- Test the application in the browser
+
+![alt text](./images/13.png)
+
+- Create EKS Cluster
+
+![alt text](./images/14.png)
+
+- Connect Local kubectl
+
+![alt text](./images/15.png)
+
+- check the nodes
+
+![alt text](./images/16.png)
+
+- Apply all the Kubernetes Resources
+
+![alt text](./images/17.png)
+
+- check the pods
+
+![alt text](./images/18.png)
+
+- Watch the services
+
+![alt text](./images/19.png)
+
+- Test it in the browser using the cluster
+
+![alt text](./images/20.png)
+
+- After building the CI/CD Pipeline check the Console Output in the Jenkins
+
+![alt text](./images/21.png)
+
+- Success Pipelines
+
+![alt text](./images/22.png)
